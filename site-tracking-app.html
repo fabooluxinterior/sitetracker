@@ -33,7 +33,7 @@
 </div>
 <script>
 (() => {
-  const API_URL = localStorage.getItem('sitetrack_api_url') || '';
+  const API_URL = localStorage.getItem('sitetrack_api_url') || 'https://script.google.com/macros/s/AKfycbwlSWEv7viovJNHd6xYs6On6IksAfJr5GK0xuQDS8EHXatQpgyNlOJWe7FWB_H6HBJ_kQ/exec';
   const state = {step:0, gps:null, stream:null, selfie:null, photos:[], customer:null, customers:[], allSearchResults:[], workDetails:'', workers:'', daysUsed:0, totalDays:15, coordinatorId:localStorage.getItem('sitetrack_coordinator_id')||'demo-coordinator'};
   const $ = id => document.getElementById(id);
   const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
