@@ -38,6 +38,10 @@ Admins can search and sort all sessions by site, coordinator, date, newest, olde
 
 Admins can add or edit coordinators and admins from the Users tab.
 
+The Visits dashboard includes `Download data + selfies`. It creates a filtered ZIP in Drive containing `visits.csv` plus any available login/logout selfie files, then provides a direct download link. Exports are saved in the `SiteTrack Admin Exports` Drive folder.
+
+The frontend shows immediate loading states, avoids blocking camera access on reverse-geocoding, and uses the existing lightweight API calls for dashboard data.
+
 ## Deployment
 
 1. Create or open the Apps Script project bound to the new spreadsheet.
