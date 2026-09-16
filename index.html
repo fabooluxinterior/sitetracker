@@ -10,20 +10,20 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; padding: 1rem; }
     button, input, select { font: inherit; outline: none; border: none; }
-    .app { max-width: 600px; margin: 0 auto; background: var(--surface); border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); overflow: hidden; min-height: 90vh; }
+    .app { max-width: 600px; margin: 0 auto; background: var(--surface); border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); overflow: hidden; min-height: 90vh; display: flex; flex-direction: column; }
     header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--surface); z-index: 10; }
     .logo { font-weight: 800; font-size: 1.25rem; letter-spacing: -0.5px; }
     .logo span { color: var(--accent); }
     .gps { font-size: 0.75rem; font-weight: 600; padding: 4px 10px; background: var(--bg); border-radius: 20px; display: flex; align-items: center; gap: 6px; }
     .dot { width: 6px; height: 6px; background: var(--error); border-radius: 50%; }
     .dot.ok { background: var(--success); }
-    main { padding: 24px 20px; }
+    main { padding: 24px 20px; flex-grow: 1; }
     h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
     p.sub { color: var(--muted); font-size: 0.875rem; margin-bottom: 24px; line-height: 1.5; }
     .field { margin-bottom: 16px; }
     .field label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
-    .field input, .field select { width: 100%; padding: 14px; background: var(--bg); border-radius: 10px; border: 1px solid transparent; transition: all 0.2s; }
-    .field input:focus, .field select:focus { border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 3px rgba(249,115,22,0.1); }
+    .field input, .field select, .field textarea { width: 100%; padding: 14px; background: var(--bg); border-radius: 10px; border: 1px solid transparent; transition: all 0.2s; resize: vertical; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 3px rgba(249,115,22,0.1); }
     .btn { width: 100%; padding: 14px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
     .btn:active { opacity: 0.8; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -31,6 +31,9 @@
     .secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
     .card { padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .text-center { text-align: center; }
+    .text-center h2 { font-size: 2.5rem; color: var(--accent); margin-bottom: 4px; }
+    .text-center small { color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
     .camera { width: 100%; aspect-ratio: 4/3; background: #000; border-radius: 10px; overflow: hidden; margin-bottom: 12px; position: relative; }
     .camera video, .camera img { width: 100%; height: 100%; object-fit: cover; }
     .camera p { color: white; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; font-size: 0.875rem; }
@@ -41,10 +44,19 @@
     .site-item:last-child { border-bottom: none; }
     .site-item strong { display: block; margin-bottom: 4px; }
     .site-item small { color: var(--muted); font-size: 0.75rem; }
-    .tag { font-size: 0.7rem; font-weight: 700; background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 12px; }
     .notice { padding: 12px; border-radius: 8px; font-size: 0.875rem; margin-top: 12px; }
     .notice.bad { background: #fee2e2; color: #991b1b; }
     .hidden { display: none !important; }
+    
+    /* Admin Table Styles */
+    .table-wrapper { width: 100%; overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 24px; }
+    table { width: 100%; border-collapse: collapse; min-width: 800px; font-size: 0.875rem; }
+    th { background: var(--bg); padding: 12px; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+    .status-badge { padding: 4px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .status-badge.active { background: #dbeafe; color: #1e40af; }
+    .status-badge.completed { background: #dcfce7; color: #166534; }
   </style>
 </head>
 <body>
@@ -59,15 +71,13 @@
 
   <script>
     // Note: Replace with your actual deployed Web App URL
-    const API = 'https://script.google.com/macros/s/AKfycbwlSWEv7viovJNHd6xYs6On6IksAfJr5GK0xuQDS8EHXatQpgyNlOJWe7FWB_H6HBJ_kQ/exec';
-    const S = { token: sessionStorage.getItem('st_token')||'', user: JSON.parse(sessionStorage.getItem('st_user')||'null'), gps: null, stream: null, selfie: null, selected: null, active: [], view: 'home' };
+    const API = 'https://script.google.com/macros/s/AKfycby5hC91f9R4tVl1jVq2pT4UfV5k9_h2T4UfV5k9_h2T4UfV5k9_h2T4UfV5k9_h2/exec';
+    const S = { token: sessionStorage.getItem('st_token')||'', user: JSON.parse(sessionStorage.getItem('st_user')||'null'), gps: null, stream: null, selfie: null, selected: null, active: [], currentDaysWorked: 0, view: 'home' };
     const $ = id => document.getElementById(id);
     const esc = str => String(str ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 
-    async function req(action, payload = {}, method = 'POST') {
-      const opts = method === 'POST' ? { method, headers: {'Content-Type':'text/plain'}, body: JSON.stringify({action, ...payload}) } : {};
-      const url = method === 'GET' ? `${API}?${new URLSearchParams({action, token: S.token, ...payload})}` : API;
-      const res = await fetch(url, opts);
+    async function req(action, payload = {}) {
+      const res = await fetch(API, { method: 'POST', headers: {'Content-Type':'text/plain'}, body: JSON.stringify({action, ...payload}) });
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || 'Request failed');
       return data;
@@ -75,17 +85,24 @@
 
     function render() {
       if (!S.user) { $('nav').classList.add('hidden'); return showLogin(); }
-      updateNav(); updateGPS();
-      if (S.view === 'home') showHome();
-      else if (S.view === 'site') showSite();
-      else if (S.view === 'logout') showLogout();
-      else showAdmin();
+      updateNav(); updateGPS(); stopCam();
+      
+      const views = {
+        'home': showHome,
+        'site_start': showSiteStart,
+        'working_days': showWorkingDays,
+        'site_logout_select': showSiteLogoutSelect,
+        'site_logout_capture': showSiteLogoutCapture,
+        'admin': showAdmin
+      };
+      
+      (views[S.view] || showHome)();
     }
 
     function updateNav() {
       $('nav').classList.remove('hidden');
       $('nav').innerHTML = `
-        <button class="${S.view === 'home' ? 'on' : ''}" onclick="navTo('home')">Home</button>
+        <button class="${['home','site_start','working_days','site_logout_select','site_logout_capture'].includes(S.view) ? 'on' : ''}" onclick="navTo('home')">Home</button>
         ${S.user.role === 'admin' ? `<button class="${S.view === 'admin' ? 'on' : ''}" onclick="navTo('admin')">Admin</button>` : ''}
         <button style="color:var(--error)" onclick="logoutUser()">Sign Out</button>
       `;
@@ -94,6 +111,7 @@
     function navTo(view) { S.view = view; render(); }
     function logoutUser() { sessionStorage.clear(); S.token = ''; S.user = null; render(); }
     function updateGPS() { $('gps').innerHTML = S.gps ? `<div class="dot ok"></div>${esc(S.gps.label.split(',')[0])}` : `<div class="dot"></div>No GPS`; }
+    function stopCam() { if(S.stream) { S.stream.getTracks().forEach(t => t.stop()); S.stream = null; } S.selfie = null; }
 
     function showLogin() {
       $('screen').innerHTML = `
@@ -112,81 +130,48 @@
         const d = await req('login', {email: $('em').value, password: $('pw').value});
         S.token = d.token; S.user = d.user; S.active = d.active || [];
         sessionStorage.setItem('st_token', S.token); sessionStorage.setItem('st_user', JSON.stringify(S.user));
-        S.view = 'home'; render();
+        // Push user directly to site_start upon login as requested
+        navTo('site_start');
       } catch (e) { $('err').innerHTML = `<div class="notice bad">${esc(e.message)}</div>`; btn.disabled = false; btn.textContent = 'Sign In'; }
     }
 
-    function showHome() {
+    // --- NEW SITE FLOW ---
+    
+    function showSiteStart() {
       $('screen').innerHTML = `
-        <h1>Active Sites</h1>
-        <p class="sub">Signed in as ${esc(S.user.name)}</p>
-        <div class="card row">
-          <div><small style="color:var(--muted)">Active Now</small><strong style="display:block;font-size:1.5rem">${S.active.length}</strong></div>
-          <button class="btn primary" onclick="S.selfie=null; navTo('site')" style="padding:8px">Start Site</button>
-        </div>
-        <div id="list">
-          ${S.active.length ? S.active.map(s => `
-            <div class="site-item">
-              <div><strong>${esc(s.clientName)}</strong><small>${esc(s.siteLocation)}</small></div>
-              <button class="btn secondary" style="width:auto;padding:6px 12px;font-size:0.75rem" onclick="prepLogout('${s.sessionId}')">End Session</button>
-            </div>
-          `).join('') : '<p class="sub" style="text-align:center;margin-top:2rem">No active sites.</p>'}
-        </div>
-      `;
-    }
-
-    function prepLogout(id) { S.selected = S.active.find(x => x.sessionId === id); S.selfie = null; navTo('logout'); }
-
-    function showSite() {
-      $('screen').innerHTML = `
-        <h1>Start Session</h1>
-        <p class="sub">Enter details and capture your login photo.</p>
-        <div class="field"><label>Project Name</label><input id="cn" placeholder="e.g. Skyline Build"></div>
+        <h1>Site Details</h1>
+        <p class="sub">Enter new site information and capture authentication.</p>
+        <div class="field"><label>Site Name</label><input id="cn" placeholder="e.g. Skyline Build"></div>
         <div class="field"><label>Location</label><input id="cl" placeholder="e.g. Edappally"></div>
-        <div class="field"><label>Workers</label><input id="wk" type="number" placeholder="0"></div>
+        <div class="field"><label>Number of Workers</label><input id="wk" type="number" placeholder="0"></div>
         <div class="camera" id="cam"><p>Camera inactive</p></div>
         <div class="row" style="margin-bottom:16px">
-          <button class="btn secondary" onclick="initCam()">Open Camera</button>
+          <button class="btn secondary" onclick="initCam()">Open Camera & GPS</button>
           <button id="cap" class="btn primary" disabled onclick="captureCam()">Capture</button>
         </div>
-        <button id="sl" class="btn primary" onclick="submitSite()">Submit Session</button>
-        <div id="err"></div>
-      `;
-    }
-
-    function showLogout() {
-      $('screen').innerHTML = `
-        <h1>End Session</h1>
-        <p class="sub">Confirming departure for <strong>${esc(S.selected?.clientName)}</strong>.</p>
-        <div class="camera" id="cam"><p>Camera inactive</p></div>
-        <div class="row" style="margin-bottom:16px">
-          <button class="btn secondary" onclick="initCam()">Open Camera</button>
-          <button id="cap" class="btn primary" disabled onclick="captureCam()">Capture</button>
-        </div>
-        <button id="sl" class="btn primary" disabled onclick="submitLogout()">End Session</button>
-        <button class="btn secondary" style="margin-top:12px" onclick="navTo('home')">Cancel</button>
+        <button id="sl" class="btn primary" disabled onclick="submitSite()">Submit Session</button>
         <div id="err"></div>
       `;
     }
 
     async function initCam() {
       try {
-        locate(); // Run GPS concurrently
+        await locate(); // Require GPS access
         S.stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}, audio:false});
         const v = document.createElement('video'); v.autoplay = true; v.playsInline = true; v.srcObject = S.stream;
         $('cam').replaceChildren(v); $('cap').disabled = false;
-      } catch (e) { $('err').innerHTML = `<div class="notice bad">Camera access denied.</div>`; }
+      } catch (e) { $('err').innerHTML = `<div class="notice bad">Camera or Location access denied. Both are required.</div>`; }
     }
 
     function captureCam() {
       const v = $('cam').querySelector('video'), c = document.createElement('canvas');
       c.width = v.videoWidth; c.height = v.videoHeight;
       c.getContext('2d').drawImage(v, 0, 0);
-      S.selfie = c.toDataURL('image/jpeg', 0.6); // Lowered quality for faster upload
-      S.stream.getTracks().forEach(t => t.stop()); S.stream = null;
+      S.selfie = c.toDataURL('image/jpeg', 0.6); 
+      stopCam();
       $('cam').innerHTML = `<img src="${S.selfie}">`; 
       $('cap').disabled = true;
-      if($('sl')) $('sl').disabled = false;
+      if($('sl') && S.gps) $('sl').disabled = false;
     }
 
     async function locate() {
@@ -195,31 +180,216 @@
           S.gps = { lat: p.coords.latitude, lng: p.coords.longitude, label: `${p.coords.latitude.toFixed(4)}, ${p.coords.longitude.toFixed(4)}` };
           updateGPS(); res(S.gps);
         },
-        () => rej(), {enableHighAccuracy: true, timeout: 5000}
+        () => rej(new Error('Location required')), {enableHighAccuracy: true, timeout: 5000}
       ));
     }
 
     async function submitSite() {
       const btn = $('sl'); btn.disabled = true; btn.textContent = 'Uploading...';
       try {
-        await locate();
-        if(!S.selfie) throw new Error('Capture photo first.');
-        const d = await req('site_login', { token: S.token, clientName: $('cn').value, siteLocation: $('cl').value, customerId: `${$('cn').value}|${$('cl').value}`, workers: $('wk').value, loginSelfieDataUrl: S.selfie, locationName: S.gps.label, latitude: S.gps.lat, longitude: S.gps.lng });
-        S.active = d.active || []; navTo('home');
+        if(!S.selfie || !S.gps) throw new Error('Capture photo and location first.');
+        if(!$('cn').value) throw new Error('Site Name is required.');
+        
+        const d = await req('site_login', { 
+          token: S.token, clientName: $('cn').value, siteLocation: $('cl').value, 
+          workers: $('wk').value, loginSelfieDataUrl: S.selfie, 
+          locationName: S.gps.label, latitude: S.gps.lat, longitude: S.gps.lng 
+        });
+        
+        S.active = d.active || [];
+        S.currentDaysWorked = d.daysWorked; // Retrieved from backend
+        navTo('working_days');
       } catch (e) { $('err').innerHTML = `<div class="notice bad">${esc(e.message)}</div>`; btn.disabled = false; btn.textContent = 'Submit Session'; }
+    }
+
+    function showWorkingDays() {
+      $('screen').innerHTML = `
+        <h1>Session Started</h1>
+        <p class="sub">Attendance and site details securely logged.</p>
+        <div class="row" style="margin-bottom: 24px;">
+          <div class="card text-center" style="margin-bottom:0">
+            <h2>${S.currentDaysWorked}</h2>
+            <small>Days Worked</small>
+          </div>
+          <div class="card text-center" style="margin-bottom:0">
+            <h2>15</h2>
+            <small>Total Days</small>
+          </div>
+        </div>
+        <button class="btn primary" onclick="navTo('home')">Go to Dashboard</button>
+      `;
+    }
+
+    // --- HOME DASHBOARD ---
+
+    function showHome() {
+      $('screen').innerHTML = `
+        <h1>Dashboard</h1>
+        <p class="sub">Welcome, ${esc(S.user.name)}</p>
+        
+        <div class="row" style="margin-bottom: 24px;">
+          <button class="btn primary" onclick="navTo('site_start')">Login Site</button>
+          <button class="btn secondary" onclick="navTo('site_logout_select')">Log Out Site</button>
+        </div>
+
+        <h3>Active Sites (${S.active.length})</h3>
+        <div id="list" style="margin-top: 12px;">
+          ${S.active.length ? S.active.map(s => `
+            <div class="site-item">
+              <div><strong>${esc(s.clientName)}</strong><small>${esc(s.siteLocation)}</small></div>
+              <span style="width: 12px; height: 12px; background: var(--success); border-radius: 50%; display: inline-block;"></span>
+            </div>
+          `).join('') : '<p class="sub" style="margin-top:1rem">No active sites right now.</p>'}
+        </div>
+      `;
+    }
+
+    // --- LOGOUT FLOW ---
+
+    function showSiteLogoutSelect() {
+      if(S.active.length === 0) {
+        $('screen').innerHTML = `<h1>Log Out Site</h1><p class="sub">No active sites available to log out from.</p><button class="btn secondary" onclick="navTo('home')">Back</button>`;
+        return;
+      }
+      
+      const options = S.active.map(s => `<option value="${s.sessionId}">${esc(s.clientName)} - ${esc(s.siteLocation)}</option>`).join('');
+      
+      $('screen').innerHTML = `
+        <h1>Select Site</h1>
+        <p class="sub">Choose the active site you want to log out from.</p>
+        <div class="field">
+          <label>Active Site</label>
+          <select id="logout-select">${options}</select>
+        </div>
+        <button class="btn primary" onclick="proceedToLogoutCapture()">Next</button>
+        <button class="btn secondary" style="margin-top:12px" onclick="navTo('home')">Cancel</button>
+      `;
+    }
+
+    function proceedToLogoutCapture() {
+      const id = $('logout-select').value;
+      S.selected = S.active.find(x => x.sessionId === id);
+      navTo('site_logout_capture');
+    }
+
+    function showSiteLogoutCapture() {
+      $('screen').innerHTML = `
+        <h1>Log Out: ${esc(S.selected.clientName)}</h1>
+        <p class="sub">Capture final details to end this session.</p>
+        
+        <div class="camera" id="cam"><p>Camera inactive</p></div>
+        <div class="row" style="margin-bottom:16px">
+          <button class="btn secondary" onclick="initCam()">Open Camera & GPS</button>
+          <button id="cap" class="btn primary" disabled onclick="captureCam()">Capture</button>
+        </div>
+        
+        <div class="field">
+          <label>Comments (Optional)</label>
+          <textarea id="logout-comment" rows="3" placeholder="Any final notes?"></textarea>
+        </div>
+
+        <button id="sl" class="btn primary" disabled onclick="submitLogout()">End Session</button>
+        <button class="btn secondary" style="margin-top:12px" onclick="navTo('home')">Cancel</button>
+        <div id="err"></div>
+      `;
     }
 
     async function submitLogout() {
       const btn = $('sl'); btn.disabled = true; btn.textContent = 'Uploading...';
       try {
-        await locate();
-        const d = await req('site_logout', { token: S.token, sessionId: S.selected.sessionId, logoutSelfieDataUrl: S.selfie, locationName: S.gps.label, latitude: S.gps.lat, longitude: S.gps.lng });
-        S.active = d.active || []; navTo('home');
+        if(!S.selfie || !S.gps) throw new Error('Capture photo and location first.');
+        const comment = $('logout-comment').value;
+        
+        const d = await req('site_logout', { 
+          token: S.token, sessionId: S.selected.sessionId, 
+          logoutSelfieDataUrl: S.selfie, locationName: S.gps.label, 
+          latitude: S.gps.lat, longitude: S.gps.lng, comment: comment 
+        });
+        
+        S.active = d.active || []; 
+        navTo('home');
       } catch (e) { $('err').innerHTML = `<div class="notice bad">${esc(e.message)}</div>`; btn.disabled = false; btn.textContent = 'End Session'; }
     }
 
-    function showAdmin() {
-      $('screen').innerHTML = `<h1>Admin Panel</h1><p class="sub">Dashboard features accessible via Google Sheets.</p><button class="btn secondary" onclick="navTo('home')">Back to Home</button>`;
+    // --- ADMIN PANEL ---
+
+    async function showAdmin() {
+      $('screen').innerHTML = `<h1>Admin Panel</h1><p class="sub">Loading data...</p>`;
+      try {
+        const d = await req('admin_data', { token: S.token });
+        
+        const rows = d.sessions.map(s => `
+          <tr>
+            <td><strong>${esc(s.clientName)}</strong><br><small>${esc(s.location)}</small></td>
+            <td>${esc(s.email)}</td>
+            <td>
+               <small style="display:block">IN: ${s.inTime ? new Date(s.inTime).toLocaleString() : '-'}</small>
+               <small style="display:block; color:var(--muted)">${esc(s.inLoc)}</small>
+            </td>
+            <td>
+               <small style="display:block">OUT: ${s.outTime ? new Date(s.outTime).toLocaleString() : '-'}</small>
+               <small style="display:block; color:var(--muted)">${esc(s.outLoc)}</small>
+            </td>
+            <td><span class="status-badge ${s.status === 'Active' ? 'active' : 'completed'}">${esc(s.status)}</span></td>
+            <td><small>${esc(s.comment) || '-'}</small></td>
+          </tr>
+        `).join('');
+
+        $('screen').innerHTML = `
+          <h1>Site Overview</h1>
+          <p class="sub">Complete operational data across all sites.</p>
+          
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Site Details</th>
+                  <th>Coordinator</th>
+                  <th>Login (Time/Loc)</th>
+                  <th>Logout (Time/Loc)</th>
+                  <th>Status</th>
+                  <th>Comments</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows || '<tr><td colspan="6" class="text-center">No sessions found</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+
+          <h2 style="font-size:1.25rem; margin: 32px 0 16px;">Add New User / Admin</h2>
+          <div class="card">
+            <div class="field"><label>Name</label><input id="nu_name" placeholder="John Doe"></div>
+            <div class="field"><label>Email</label><input id="nu_email" type="email" placeholder="user@company.com"></div>
+            <div class="field"><label>Password</label><input id="nu_pass" placeholder="Password"></div>
+            <div class="field">
+              <label>Role</label>
+              <select id="nu_role"><option value="user">Standard User</option><option value="admin">Administrator</option></select>
+            </div>
+            <button id="btn-add-user" class="btn primary" onclick="adminAddUser()">Create Account</button>
+            <div id="add-err"></div>
+          </div>
+        `;
+      } catch(e) {
+        $('screen').innerHTML = `<h1>Admin Error</h1><div class="notice bad">${esc(e.message)}</div><button class="btn secondary" onclick="navTo('home')">Back Home</button>`;
+      }
+    }
+
+    async function adminAddUser() {
+      const btn = $('btn-add-user'); btn.disabled = true; btn.textContent = 'Creating...';
+      try {
+        const payload = { token: S.token, newName: $('nu_name').value, newEmail: $('nu_email').value, newPassword: $('nu_pass').value, newRole: $('nu_role').value };
+        if(!payload.newEmail || !payload.newPassword) throw new Error('Email and Password required');
+        
+        await req('admin_add_user', payload);
+        
+        $('add-err').innerHTML = `<div class="notice" style="background:#dcfce7;color:#166534">User created successfully!</div>`;
+        ['nu_name','nu_email','nu_pass'].forEach(id => $(id).value = '');
+      } catch(e) {
+        $('add-err').innerHTML = `<div class="notice bad">${esc(e.message)}</div>`;
+      } finally {
+        btn.disabled = false; btn.textContent = 'Create Account';
+      }
     }
 
     setTimeout(render, 100);
