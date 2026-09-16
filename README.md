@@ -1,56 +1,46 @@
 # SiteTrack
 
-A fast, mobile-first coordinator site-visit app.
+A fast, mobile-first coordinator site-session app with a white-and-orange interface.
+
+## Live app
+
+https://fabooluxinterior.github.io/sitetracker/
 
 ## Included workflow
 
-1. On open, request GPS. If GPS is already allowed, the prompt is skipped and the location status is shown.
-2. Create a client or select a customer from the last 30 days.
-3. Search the complete project history with no 30-day restriction.
-4. Capture a selfie with timestamp and the most recent GPS coordinates.
-5. Upload multiple site pictures and record pending works.
-6. Enter workers as a number only.
-7. Automatically count one working day per coordinator + site + calendar date, even if the coordinator checks in several times that day. The project limit is 15 days.
-8. Save locally first, then sync to Google Sheets when the endpoint is configured. If the network fails, the visit remains in the device queue instead of being lost.
+- Email/password login backed by the Google Sheet Credentials tab.
+- Coordinator home showing active sites and a one-tap site login or logout action.
+- Multiple sites can be active at the same time.
+- Site login captures GPS, a location label, time, workers, and a login selfie.
+- Site logout requires a fresh GPS reading and selfie; logout is rejected when location is unavailable.
+- GPS location is reverse-geocoded to a readable place label when the browser can reach the geocoder, with a coordinate fallback.
+- Recent customer list is limited to 30 days; all-time project search is available separately.
+- One working day is counted per coordinator + site + calendar date, with a 15-day limit.
+- Admin panel filters visit data by project, coordinator, and date. Admins can add or edit users in the Credentials tab.
+- Site image uploads and pending-work text uploads were removed from this version.
 
-## Connect Google Sheets
+## Google Sheets backend
 
-A starter destination sheet has been created here: https://docs.google.com/spreadsheets/d/1Kcu-Gchtzqej2YergFCOTAkKqUH6ZA4hbjbJXfmFyvM
+Destination sheet: https://docs.google.com/spreadsheets/d/1Kcu-Gchtzqej2YergFCOTAkKqUH6ZA4hbjbJXfmFyvM
 
-1. Open the starter sheet above (or use your own sheet). Create a blank Google Sheet.
-2. Open **Extensions → Apps Script**.
-3. Paste `Code.gs` and save.
-4. Run `setup()` once and approve Google permissions. This creates clean `Visits` and `Customers` tabs and a `SiteTrack Uploads` Drive folder.
-5. Deploy → New deployment → Web app.
-6. Set **Execute as:** Me. Set access to the intended users (for a simple pilot, “Anyone with the link”).
-7. Copy the `/exec` URL.
-8. In the app, set the endpoint in the browser console:
+The bound Apps Script backend uses these tabs:
 
-```js
-localStorage.setItem('sitetrack_api_url', 'PASTE_YOUR_EXEC_URL_HERE');
-location.reload();
-```
+- Visits — login/logout session records, GPS, workers, dates, and selfie URLs.
+- Customers — project/customer index and recent-visit information.
+- Credentials — Email, Password, Role, Display Name, Active, Updated At.
 
-The app sends visits to `POST /exec`, and uses these read endpoints:
+After pasting Code.gs into the bound Apps Script project, run setup() once. The first run seeds an admin row using the Google account that owns the script and a generated password. Change that password immediately in Credentials.
 
-- `?action=customers` — recent customer list
-- `?action=search&q=...` — all-time customer search
-- `?action=days_used&coordinatorId=...&customerId=...` — working-day history
+Deploy it as a web app with Execute as the owner and access set to the intended users. The current deployment endpoint is already wired into index.html and site-tracking-app.html.
+
+## Security note
+
+This pilot stores passwords in the Credentials sheet as requested. For production, migrate to Google sign-in or a managed identity provider and restrict the Apps Script deployment. Selfies are stored in the SiteTrack Uploads Drive folder.
 
 ## Run locally
 
-For camera and GPS, serve the file over `https` or `http://localhost` rather than opening it directly from `file://`. For example:
+Serve the files over HTTPS or localhost so browser camera and GPS permissions work:
 
 ```bash
 python -m http.server 8080
 ```
-
-Then open `http://localhost:8080/site-tracking-app.html` on the device or use an HTTPS deployment.
-
-## Important production hardening
-
-- Use Google sign-in or a proper coordinator identity instead of the demo coordinator ID.
-- Restrict the Apps Script deployment to your organization or authenticated users.
-- Add a retention policy and access controls for selfies and site images.
-- For large teams, move image storage and data writes to a proper backend instead of sending base64 images directly through Apps Script.
-- Test GPS, camera, offline queue, and sheet permissions on the actual Android/iOS devices before rollout.
