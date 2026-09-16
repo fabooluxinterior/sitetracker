@@ -6,7 +6,8 @@ const CONFIG = {
   timezone: 'Asia/Kolkata',
   maxDays: 15,
   sessionSeconds: 21600,
-  driveFolder: 'SiteTrack V2 Selfies'
+  driveFolder: 'SiteTrack V2 Selfies',
+  exportFolder: 'SiteTrack Admin Exports'
 };
 
 const VISIT_HEADERS = ['Session ID','Status','Coordinator Email','Coordinator Name','Site Name','Site Location','Workers','Working Day','Total Days','Login At','Login Date','Login Location','Login Latitude','Login Longitude','Login Selfie URL','Logout At','Logout Date','Logout Location','Logout Latitude','Logout Longitude','Logout Selfie URL','Logout Comment','Server Timezone','Created At','Updated At'];
@@ -22,6 +23,7 @@ function doGet(e) {
     if (action === 'days_used') return json_({ok:true, days:daysUsed_(requireAuth_(p.token), p.siteKey || '')});
     if (action === 'admin_data') return json_({ok:true, data:adminData_(requireAdmin_(p.token), p)});
     if (action === 'admin_users') return json_({ok:true, users:adminUsers_(requireAdmin_(p.token))});
+    if (action === 'admin_export') return json_({ok:true, downloadUrl:adminExport_(requireAdmin_(p.token), p)});
     return json_({ok:false,error:'Unknown action'});
   } catch (err) {
     return json_({ok:false,error:String(err.message || err)});
@@ -79,7 +81,8 @@ function siteLogin_(p) {
   if (rows.some(r => String(r[1]) === 'ACTIVE' && String(r[2]) === user.email && String(r[4]) + '|' + String(r[5]) === siteKey)) throw new Error('This site is already active. Use site logout before logging in again.');
   const now = new Date();
   const loginDate = dateKey_(now);
-  const workingDay = uniqueDates_(rows.filter(r => String(r[2]) === user.email && String(r[4]) + '|' + String(r[5]) === siteKey).map(r => String(r[10] || ''))).indexOf(loginDate) >= 0 ? uniqueDates_(rows.filter(r => String(r[2]) === user.email && String(r[4]) + '|' + String(r[5]) === siteKey).map(r => String(r[10] || ''))).length : uniqueDates_(rows.filter(r => String(r[2]) === user.email && String(r[4]) + '|' + String(r[5]) === siteKey).map(r => String(r[10] || ''))).length + 1;
+  const siteDates = uniqueDates_(rows.filter(r => String(r[2]) === user.email && String(r[4]) + '|' + String(r[5]) === siteKey).map(r => String(r[10] || '')));
+  const workingDay = siteDates.indexOf(loginDate) >= 0 ? siteDates.length : siteDates.length + 1;
   if (workingDay > CONFIG.maxDays) throw new Error('This site has reached the 15-working-day limit.');
   const sessionId = Utilities.getUuid();
   const selfieUrl = saveImage_(p.loginSelfieDataUrl, 'login_' + sessionId);
@@ -130,6 +133,40 @@ function adminData_(admin, p) {
   visits.sort((a,b) => sort === 'oldest' ? a.loginAt.localeCompare(b.loginAt) : sort === 'site' ? a.siteName.localeCompare(b.siteName) : sort === 'coordinator' ? a.coordinatorName.localeCompare(b.coordinatorName) : b.loginAt.localeCompare(a.loginAt));
   return {visits:visits.slice(0,1000),active:visits.filter(v => v.status === 'ACTIVE'),total:visits.length};
 }
+
+function adminExport_(admin, p) {
+  const result = adminData_(admin, p);
+  const stamp = Utilities.formatDate(new Date(), CONFIG.timezone, 'yyyyMMdd_HHmmss');
+  const exportFolder = folderByName_(CONFIG.exportFolder);
+  const blobs = [];
+  const rows = [VISIT_HEADERS].concat(result.visits.map(exportRow_));
+  blobs.push(Utilities.newBlob(rows.map(csvRow_).join('\\r\\n'), 'text/csv', 'visits.csv'));
+  result.visits.forEach((v, index) => {
+    [['login', v.loginSelfieUrl], ['logout', v.logoutSelfieUrl]].forEach(pair => {
+      const id = extractDriveId_(pair[1]);
+      if (!id) return;
+      try {
+        const source = DriveApp.getFileById(id);
+        const ext = (source.getName().split('.').pop() || 'jpg').replace(/[^a-z0-9]/gi, '').toLowerCase() || 'jpg';
+        const fileName = 'selfies/' + String(index + 1).padStart(4, '0') + '_' + pair[0] + '_' + safeFileName_(v.siteName) + '.' + ext;
+        blobs.push(source.getBlob().setName(fileName));
+      } catch (e) {}
+    });
+  });
+  const zip = exportFolder.createFile(Utilities.zip(blobs, 'sitetrack_export_' + stamp + '.zip'));
+  adminUsers_(admin).filter(u => u.active && u.role === 'admin').forEach(u => {
+    try { zip.addViewer(u.email); } catch (e) {}
+  });
+  return zip.getUrl();
+}
+
+function exportRow_(v) {
+  return [v.sessionId,v.status,v.coordinatorEmail,v.coordinatorName,v.siteName,v.siteLocation,v.workers,v.workingDay,v.totalDays,v.loginAt,v.loginDate,v.loginLocation,v.loginLatitude,v.loginLongitude,v.loginSelfieUrl,v.logoutAt,v.logoutDate,v.logoutLocation,v.logoutLatitude,v.logoutLongitude,v.logoutSelfieUrl,v.logoutComment,v.timezone,v.createdAt,v.updatedAt];
+}
+function csvRow_(row) { return row.map(v => '\"' + String(v === undefined || v === null ? '' : v).replace(/\"/g, '\"\"') + '\"').join(','); }
+function extractDriveId_(url) { const m = String(url || '').match(/[a-zA-Z0-9_-]{25,}/); return m ? m[0] : ''; }
+function safeFileName_(name) { return String(name || 'site').replace(/[^a-z0-9_-]+/gi, '_').slice(0, 80) || 'site'; }
+function folderByName_(name) { const it = DriveApp.getFoldersByName(name); return it.hasNext() ? it.next() : DriveApp.createFolder(name); }
 
 function adminUsers_(admin) {
   return dataRows_(sheet_(CONFIG.usersSheet)).map(r => ({email:normalizeEmail_(r[0]),name:String(r[3] || r[0] || ''),role:String(r[2] || 'coordinator').toLowerCase(),active:isTruthy_(r[4]),updatedAt:dateIso_(r[5])}));
