@@ -1,2 +1,228 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f97316"><title>SiteTrack</title><style>:root{--o:#f97316;--od:#c2410c;--ink:#24313b;--mut:#71808a;--line:#e5eaed;--soft:#fff7ed;--good:#16845b;--bad:#b33b3b;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}*{box-sizing:border-box}body{margin:0;background:#f7f8f9;color:var(--ink)}button,input,select{font:inherit}button{border:0;cursor:pointer}.app{max-width:720px;min-height:100vh;margin:auto;background:#fff;box-shadow:0 0 32px #17232b12}header{padding:18px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:3}.top{display:flex;justify-content:space-between;align-items:center}.logo{color:var(--od);font-weight:900;font-size:24px}.logo small{display:block;color:var(--mut);font-size:11px;font-weight:600}.gps{background:var(--soft);color:var(--od);border-radius:99px;padding:7px 10px;font-size:11px;font-weight:800}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--o);margin-right:5px}.dot.ok{background:#29a873}.nav{display:flex;gap:7px;margin-top:14px}.nav button{background:#fff1e5;color:var(--od);padding:8px 11px;border-radius:9px;font-size:12px;font-weight:800}.nav .on{background:var(--o);color:#fff}.nav .out{margin-left:auto;background:#fff0f0;color:var(--bad)}main{padding:22px 20px}.kicker{color:var(--od);font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:900}h1{font-size:29px;line-height:1.12;margin:7px 0 8px}h2{font-size:20px;margin:0 0 12px}.sub{font-size:14px;color:var(--mut);line-height:1.5;margin:0 0 19px}.card{border:1px solid var(--line);border-radius:15px;padding:17px;margin:13px 0;background:#fff}.soft{background:var(--soft);border-color:#fed7aa}.field{margin:14px 0}.field label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}.field input,.field select{width:100%;padding:12px;border:1px solid #d2dce1;border-radius:10px;outline:none;background:#fff}.field input:focus,.field select:focus{border-color:var(--o);box-shadow:0 0 0 3px #f9731620}.btn{width:100%;min-height:46px;padding:13px;border-radius:10px;font-weight:900}.primary{background:var(--o);color:#fff}.secondary{background:#fff1e5;color:var(--od)}.ghost{background:transparent;color:var(--od);padding-left:0}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.notice{padding:12px;border-radius:10px;font-size:13px;line-height:1.45;margin:12px 0}.good{background:#e9f8f0;color:var(--good)}.bad{background:#fff0f0;color:var(--bad)}.warn{background:#fff4df;color:#82500d}.metric{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;gap:10px}.metric:last-child{border:0}.metric strong{text-align:right}.site{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 0;border-bottom:1px solid var(--line)}.site:last-child{border:0}.site strong{display:block;font-size:14px}.site small{display:block;color:var(--mut);font-size:11px;margin-top:4px}.site button{background:#fff1e5;color:var(--od);padding:8px 10px;border-radius:8px;font-size:11px;font-weight:900}.tag{font-size:10px;font-weight:900;background:#e9f8f0;color:var(--good);padding:5px 8px;border-radius:99px}.camera{background:#101820;border-radius:14px;overflow:hidden;aspect-ratio:4/3}.camera video,.camera img{width:100%;height:100%;display:block;object-fit:cover}.camera p{color:#fff;text-align:center;padding:30px}.camrow{display:flex;gap:8px;margin-top:9px}.camrow button{flex:1}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:10px}.table{border-collapse:collapse;width:100%;min-width:780px;font-size:11px}.table th{background:var(--soft);color:var(--od);padding:10px;text-align:left}.table td{padding:10px;border-top:1px solid var(--line);vertical-align:top}.tabs{display:flex;gap:6px;margin:12px 0}.tabs button{padding:9px 11px;border-radius:8px;background:#f1f3f4;color:var(--mut);font-size:12px;font-weight:800}.tabs .on{background:var(--o);color:#fff}.hidden{display:none!important}.spin{display:inline-block;width:14px;height:14px;border:2px solid #fff7;border-top-color:#fff;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px}@keyframes s{to{transform:rotate(360deg)}}@media(min-width:721px){body{padding:20px 0}.app{border-radius:18px;overflow:hidden}}
-</style></head><body><div class="app"><header><div class="top"><div class="logo">SiteTrack<small>Coordinator site sessions</small></div><span id="gps" class="gps"><i class="dot"></i>GPS checking</span></div><div id="nav" class="nav hidden"></div></header><main id="screen"></main></div><script>(()=>{const API='https://script.google.com/macros/s/AKfycbwlSWEv7viovJNHd6xYs6On6IksAfJr5GK0xuQDS8EHXatQpgyNlOJWe7FWB_H6HBJ_kQ/exec',S={token:sessionStorage.getItem('st_token')||'',user:JSON.parse(sessionStorage.getItem('st_user')||'null'),gps:null,stream:null,selfie:null,selected:null,active:[],view:'home'};const $=x=>document.getElementById(x),e=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));async function post(a,p={}){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:a,...p})});const d=await r.json();if(!d.ok)throw Error(d.error||'Request failed');return d}async function get(a,p={}){const q=new URLSearchParams({action:a,token:S.token,...p}),r=await fetch(API+'?'+q);const d=await r.json();if(!d.ok)throw Error(d.error||'Request failed');return d}function auth(d){S.token=d.token;S.user=d.user;sessionStorage.setItem('st_token',S.token);sessionStorage.setItem('st_user',JSON.stringify(S.user))}function escout(m){return `<div class="notice bad">${e(m)}</div>`}function render(){gps();if(!S.user){$('nav').classList.add('hidden');login();return}nav();if(S.view==='home')home();else if(S.view==='site')site();else if(S.view==='logout')logout();else admin()}function gps(){if(!$('gps'))return;$('gps').innerHTML=S.gps?`<i class="dot ok"></i>${e(S.gps.label)}`:'<i class="dot"></i>GPS unavailable'}function nav(){$('nav').classList.remove('hidden');$('nav').innerHTML=`<button class="${S.view==='home'?'on':''}" id="hn">Home</button>${S.user.role==='admin'?`<button class="${S.view==='admin'?'on':''}" id="an">Admin</button>`:''}<button class="out" id="lo">Log out</button>`;$('hn').onclick=()=>{S.view='home';render()};$('lo').onclick=()=>{sessionStorage.clear();S.token='';S.user=null;render()};if($('an'))$('an').onclick=()=>{S.view='admin';render()}}function login(){$('screen').innerHTML=`<div style="max-width:430px;margin:38px auto"><div class="kicker">Secure access</div><h1>Welcome to SiteTrack</h1><p class="sub">Sign in to manage coordinator site sessions.</p><div class="card"><div class="field"><label>Email</label><input id="em" type="email" autocomplete="username" placeholder="coordinator@company.com"></div><div class="field"><label>Password</label><input id="pw" type="password" autocomplete="current-password" placeholder="Password"></div><button id="lb" class="btn primary">Sign in</button><div id="lm"></div></div><small style="color:var(--mut)">User access is managed in the Google Sheet Credentials tab.</small></div>`;$('lb').onclick=async()=>{const b=$('lb');b.disabled=true;b.innerHTML='<span class="spin"></span> Signing in';try{const d=await post('login',{email:$('em').value,password:$('pw').value});auth(d);S.view='home';S.active=d.active||[];render()}catch(x){$('lm').innerHTML=escout(x.message);b.disabled=false;b.textContent='Sign in'}}}async function refresh(){try{S.active=(await get('active')).active||[]}catch(x){}}function home(){refresh().then(()=>{const l=$('list');if(l)l.innerHTML=S.active.length?S.active.map(s=>`<div class="site"><div><strong>${e(s.clientName)}</strong><small>${e(s.siteLocation)} · ${new Date(s.loginAt).toLocaleString()} · day ${s.workingDay}/15</small></div><div><span class="tag">ACTIVE</span><button data-id="${e(s.sessionId)}">Logout</button></div></div>`).join(''):'<div style="color:var(--mut);text-align:center;padding:18px">No active sites right now.</div>';if(l)l.querySelectorAll('button').forEach(b=>b.onclick=()=>{S.selected=S.active.find(x=>x.sessionId===b.dataset.id);S.view='logout';S.selfie=null;render()})});$('screen').innerHTML=`<div class="kicker">${S.user.role==='admin'?'Administrator':'Coordinator'} home</div><h1>Currently at your sites</h1><p class="sub">Signed in as <strong>${e(S.user.name)}</strong>. Start or finish multiple sites on the same day.</p><div class="card soft"><div class="metric"><span>Location</span><strong>${e(S.gps?.label||'GPS not checked')}</strong></div><div class="metric"><span>Active sites</span><strong>${S.active.length}</strong></div></div><div class="card"><h2>Active now</h2><div id="list">Loading…</div></div><button id="ns" class="btn primary">＋ Site login</button>`;$('ns').onclick=()=>{S.view='site';S.selfie=null;render()}}function site(){$('screen').innerHTML=`<div class="kicker">Site login</div><h1>Start a site session</h1><p class="sub">Search an existing project or enter a new client and location. No site-photo or pending-work upload is required.</p><div class="card"><div class="field"><label>Project / client name</label><input id="cn" placeholder="Project name"></div><div class="field"><label>Site location</label><input id="cl" placeholder="Ernakulam, Edappally"></div><div class="field"><label>Workers</label><input id="wk" type="number" min="0" step="1" placeholder="Number only"></div><div class="card soft"><div class="metric"><span>GPS location</span><strong id="loc">${e(S.gps?.label||'Required')}</strong></div><button id="gpsb" class="btn secondary">Refresh GPS</button></div><label class="field"><span style="display:block;font-size:13px;font-weight:800;margin-bottom:7px">Login selfie</span><div id="cam" class="camera"><p>Open camera to capture the login selfie.</p></div><div class="camrow"><button id="oc" class="btn secondary">Open camera</button><button id="cap" class="btn primary" disabled>Capture</button></div></label><button id="sl" class="btn primary">Login to site</button><div id="sm"></div></div><button id="back" class="btn ghost">← Back home</button>`;$('back').onclick=()=>{S.view='home';render()};$('gpsb').onclick=locate;$('oc').onclick=async()=>{try{await locate();S.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});const v=document.createElement('video');v.autoplay=true;v.playsInline=true;v.srcObject=S.stream;$('cam').replaceChildren(v);$('cap').disabled=false}catch(x){$('sm').innerHTML=escout('GPS and camera access are required.')}};$('cap').onclick=capture;$('sl').onclick=siteLogin}async function locate(){return new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(async p=>{S.gps={latitude:p.coords.latitude,longitude:p.coords.longitude,label:`GPS ${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`};try{const r=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${S.gps.latitude}&longitude=${S.gps.longitude}&localityLanguage=en`);const d=await r.json();S.gps.label=[d.locality||d.city,d.principalSubdivision].filter(Boolean).join(', ')||S.gps.label}catch(x){}gps();if($('loc'))$('loc').textContent=S.gps.label;res(S.gps)},()=>rej(Error('Location is disabled or unavailable.')),{enableHighAccuracy:true,timeout:10000,maximumAge:30000}))}function capture(){const v=$('cam').querySelector('video'),c=document.createElement('canvas');c.width=v.videoWidth||720;c.height=v.videoHeight||540;c.getContext('2d').drawImage(v,0,0,c.width,c.height);S.selfie=c.toDataURL('image/jpeg',.8);if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null}$('cam').innerHTML=`<img src="${S.selfie}" alt="Login selfie">`;$('cap').disabled=true}async function siteLogin(){const m=$('sm');try{await locate();if(!S.selfie)throw Error('Capture the login selfie first.');const d=await post('site_login',{token:S.token,clientName:$('cn').value.trim(),siteLocation:$('cl').value.trim(),customerId:($('cn').value.trim()+'|'+$('cl').value.trim()),workers:$('wk').value,loginSelfieDataUrl:S.selfie,locationName:S.gps.label,latitude:S.gps.latitude,longitude:S.gps.longitude});S.active=d.active||[];S.view='home';render()}catch(x){m.innerHTML=escout(x.message)}}function logout(){$('screen').innerHTML=`<div class="kicker">Site logout</div><h1>${e(S.selected?.clientName)}</h1><p class="sub">${e(S.selected?.siteLocation)}<br>Fresh GPS and selfie are required to finish this site session.</p><div class="card"><div id="cam" class="camera"><p>Open camera to capture the logout selfie.</p></div><div class="camrow"><button id="oc" class="btn secondary">Open camera</button><button id="cap" class="btn primary" disabled>Capture</button></div><div id="lm"></div></div><div class="row"><button id="bc" class="btn ghost">Cancel</button><button id="done" class="btn primary" disabled>Logout site</button></div>`;$('bc').onclick=()=>{S.view='home';render()};$('oc').onclick=async()=>{try{await locate();S.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});const v=document.createElement('video');v.autoplay=true;v.playsInline=true;v.srcObject=S.stream;$('cam').replaceChildren(v);$('cap').disabled=false}catch(x){$('lm').innerHTML=escout('GPS and camera access are required.')}};$('cap').onclick=()=>{capture();$('done').disabled=false};$('done').onclick=async()=>{try{if(!S.gps||!S.selfie)throw Error('GPS and selfie are required.');const d=await post('site_logout',{token:S.token,sessionId:S.selected.sessionId,logoutSelfieDataUrl:S.selfie,locationName:S.gps.label,latitude:S.gps.latitude,longitude:S.gps.longitude});S.active=d.active||[];S.view='home';S.selfie=null;render()}catch(x){$('lm').innerHTML=escout(x.message)}}}async function admin(){if(S.user.role!=='admin'){S.view='home';return render()}$('screen').innerHTML=`<div class="kicker">Admin panel</div><h1>Activity and users</h1><p class="sub">Filter visit records by project, coordinator, and date. Edit access from the Users tab.</p><div class="tabs"><button id="vt" class="${S.adminTab==='u'?'':'on'}">Visits</button><button id="ut" class="${S.adminTab==='u'?'on':''}">Users</button></div><div id="ab"></div>`;$('vt').onclick=()=>{S.adminTab='v';admin()};$('ut').onclick=()=>{S.adminTab='u';admin()};if(S.adminTab==='u')users();else visits()}async function visits(){$('ab').innerHTML=`<div class="card"><div class="field"><label>Project name or site</label><input id="aq"></div><div class="field"><label>Coordinator</label><input id="ac"></div><div class="row"><div class="field"><label>From</label><input id="af" type="date"></div><div class="field"><label>To</label><input id="at" type="date"></div></div><div class="field"><label>Sort</label><select id="as"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="project">Project name</option><option value="coordinator">Coordinator</option></select></div><button id="apply" class="btn primary">Apply filters</button></div><div id="ar">Loading…</div>`;$('apply').onclick=loadAdmin;loadAdmin()}async function loadAdmin(){try{const d=await get('admin_data',{q:$('aq').value,coordinator:$('ac').value,from:$('af').value,to:$('at').value}),v=d.data.visits;const sort=$('as').value;v.sort((a,b)=>sort==='project'?a.clientName.localeCompare(b.clientName):sort==='coordinator'?a.coordinatorName.localeCompare(b.coordinatorName):sort==='old'?a.loginAt.localeCompare(b.loginAt):b.loginAt.localeCompare(a.loginAt));$('ar').innerHTML=`<div class="card soft"><div class="metric"><span>Total records</span><strong>${d.data.total}</strong></div><div class="metric"><span>Active now</span><strong>${d.data.active.length}</strong></div></div><div class="tablewrap"><table class="table"><thead><tr><th>Status</th><th>Project</th><th>Coordinator</th><th>Login</th><th>Logout</th><th>Day</th><th>Workers</th></tr></thead><tbody>${v.map(x=>`<tr><td>${e(x.status)}</td><td><b>${e(x.clientName)}</b><br>${e(x.siteLocation)}</td><td>${e(x.coordinatorName)}<br>${e(x.coordinatorEmail)}</td><td>${x.loginAt?new Date(x.loginAt).toLocaleString():'—'}<br>${e(x.loginLocation)}</td><td>${x.logoutAt?new Date(x.logoutAt).toLocaleString():'—'}<br>${e(x.logoutLocation||'—')}</td><td>${x.workingDay}/${x.totalDays}</td><td>${x.workers}</td></tr>`).join('')}</tbody></table></div>`}catch(x){$('ar').innerHTML=escout(x.message)}}async function users(){$('ab').innerHTML=`<div class="card"><h2>Add or edit user</h2><div class="field"><label>Email</label><input id="ue" type="email"></div><div class="field"><label>Password</label><input id="up" type="password" placeholder="Required for new users"></div><div class="field"><label>Display name</label><input id="un"></div><div class="row"><div class="field"><label>Role</label><select id="ur"><option value="coordinator">Coordinator</option><option value="admin">Admin</option></select></div><div class="field"><label>Access</label><select id="ua"><option value="true">Active</option><option value="false">Disabled</option></select></div></div><button id="save" class="btn primary">Save user</button><div id="um"></div></div><div id="ul" class="card">Loading users…</div>`;$('save').onclick=async()=>{try{await post('admin_save_user',{token:S.token,email:$('ue').value,password:$('up').value,name:$('un').value,role:$('ur').value,active:$('ua').value});$('um').innerHTML='<div class="notice good">Saved.</div>';users()}catch(x){$('um').innerHTML=escout(x.message)}};try{const d=await get('admin_users');$('ul').innerHTML='<h2>Users</h2>'+d.users.map(u=>`<div class="site"><div><strong>${e(u.email)}</strong><small>${e(u.name)} · ${e(u.role)} · ${u.active?'Active':'Disabled'}</small></div><button data-em="${e(u.email)}" class="secondary">Edit</button></div>`).join('');$('ul').querySelectorAll('button').forEach(b=>b.onclick=()=>{const u=d.users.find(x=>x.email===b.dataset.em);$('ue').value=u.email;$('un').value=u.name;$('ur').value=u.role;$('ua').value=String(u.active)})}catch(x){$('ul').innerHTML=escout(x.message)}}S.adminTab='v';render();setTimeout(()=>locate().catch(()=>{}),300)})();</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#111827">
+  <title>SiteTrack</title>
+  <style>
+    :root { --primary: #0f172a; --accent: #f97316; --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; --success: #10b981; --error: #ef4444; font-family: Inter, system-ui, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; padding: 1rem; }
+    button, input, select { font: inherit; outline: none; border: none; }
+    .app { max-width: 600px; margin: 0 auto; background: var(--surface); border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); overflow: hidden; min-height: 90vh; }
+    header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--surface); z-index: 10; }
+    .logo { font-weight: 800; font-size: 1.25rem; letter-spacing: -0.5px; }
+    .logo span { color: var(--accent); }
+    .gps { font-size: 0.75rem; font-weight: 600; padding: 4px 10px; background: var(--bg); border-radius: 20px; display: flex; align-items: center; gap: 6px; }
+    .dot { width: 6px; height: 6px; background: var(--error); border-radius: 50%; }
+    .dot.ok { background: var(--success); }
+    main { padding: 24px 20px; }
+    h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+    p.sub { color: var(--muted); font-size: 0.875rem; margin-bottom: 24px; line-height: 1.5; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+    .field input, .field select { width: 100%; padding: 14px; background: var(--bg); border-radius: 10px; border: 1px solid transparent; transition: all 0.2s; }
+    .field input:focus, .field select:focus { border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 3px rgba(249,115,22,0.1); }
+    .btn { width: 100%; padding: 14px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+    .btn:active { opacity: 0.8; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .primary { background: var(--primary); color: white; }
+    .secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+    .card { padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .camera { width: 100%; aspect-ratio: 4/3; background: #000; border-radius: 10px; overflow: hidden; margin-bottom: 12px; position: relative; }
+    .camera video, .camera img { width: 100%; height: 100%; object-fit: cover; }
+    .camera p { color: white; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; font-size: 0.875rem; }
+    .nav { display: flex; gap: 8px; padding: 20px; border-top: 1px solid var(--border); background: var(--surface); }
+    .nav button { flex: 1; padding: 10px; border-radius: 8px; font-size: 0.875rem; font-weight: 600; background: transparent; color: var(--muted); }
+    .nav button.on { background: var(--bg); color: var(--primary); }
+    .site-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
+    .site-item:last-child { border-bottom: none; }
+    .site-item strong { display: block; margin-bottom: 4px; }
+    .site-item small { color: var(--muted); font-size: 0.75rem; }
+    .tag { font-size: 0.7rem; font-weight: 700; background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 12px; }
+    .notice { padding: 12px; border-radius: 8px; font-size: 0.875rem; margin-top: 12px; }
+    .notice.bad { background: #fee2e2; color: #991b1b; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo">Site<span>Track</span></div>
+      <div id="gps" class="gps"><div class="dot"></div>Checking...</div>
+    </header>
+    <main id="screen"></main>
+    <div id="nav" class="nav hidden"></div>
+  </div>
+
+  <script>
+    // Note: Replace with your actual deployed Web App URL
+    const API = 'https://script.google.com/macros/s/AKfycbwlSWEv7viovJNHd6xYs6On6IksAfJr5GK0xuQDS8EHXatQpgyNlOJWe7FWB_H6HBJ_kQ/exec';
+    const S = { token: sessionStorage.getItem('st_token')||'', user: JSON.parse(sessionStorage.getItem('st_user')||'null'), gps: null, stream: null, selfie: null, selected: null, active: [], view: 'home' };
+    const $ = id => document.getElementById(id);
+    const esc = str => String(str ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+
+    async function req(action, payload = {}, method = 'POST') {
+      const opts = method === 'POST' ? { method, headers: {'Content-Type':'text/plain'}, body: JSON.stringify({action, ...payload}) } : {};
+      const url = method === 'GET' ? `${API}?${new URLSearchParams({action, token: S.token, ...payload})}` : API;
+      const res = await fetch(url, opts);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
+
+    function render() {
+      if (!S.user) { $('nav').classList.add('hidden'); return showLogin(); }
+      updateNav(); updateGPS();
+      if (S.view === 'home') showHome();
+      else if (S.view === 'site') showSite();
+      else if (S.view === 'logout') showLogout();
+      else showAdmin();
+    }
+
+    function updateNav() {
+      $('nav').classList.remove('hidden');
+      $('nav').innerHTML = `
+        <button class="${S.view === 'home' ? 'on' : ''}" onclick="navTo('home')">Home</button>
+        ${S.user.role === 'admin' ? `<button class="${S.view === 'admin' ? 'on' : ''}" onclick="navTo('admin')">Admin</button>` : ''}
+        <button style="color:var(--error)" onclick="logoutUser()">Sign Out</button>
+      `;
+    }
+    
+    function navTo(view) { S.view = view; render(); }
+    function logoutUser() { sessionStorage.clear(); S.token = ''; S.user = null; render(); }
+    function updateGPS() { $('gps').innerHTML = S.gps ? `<div class="dot ok"></div>${esc(S.gps.label.split(',')[0])}` : `<div class="dot"></div>No GPS`; }
+
+    function showLogin() {
+      $('screen').innerHTML = `
+        <h1>Welcome Back</h1>
+        <p class="sub">Sign in to manage your site sessions.</p>
+        <div class="field"><label>Email</label><input id="em" type="email" placeholder="coordinator@company.com"></div>
+        <div class="field"><label>Password</label><input id="pw" type="password" placeholder="••••••••"></div>
+        <button id="btn-login" class="btn primary" onclick="handleLogin()">Sign In</button>
+        <div id="err"></div>
+      `;
+    }
+
+    async function handleLogin() {
+      const btn = $('btn-login'); btn.disabled = true; btn.textContent = 'Signing in...';
+      try {
+        const d = await req('login', {email: $('em').value, password: $('pw').value});
+        S.token = d.token; S.user = d.user; S.active = d.active || [];
+        sessionStorage.setItem('st_token', S.token); sessionStorage.setItem('st_user', JSON.stringify(S.user));
+        S.view = 'home'; render();
+      } catch (e) { $('err').innerHTML = `<div class="notice bad">${esc(e.message)}</div>`; btn.disabled = false; btn.textContent = 'Sign In'; }
+    }
+
+    function showHome() {
+      $('screen').innerHTML = `
+        <h1>Active Sites</h1>
+        <p class="sub">Signed in as ${esc(S.user.name)}</p>
+        <div class="card row">
+          <div><small style="color:var(--muted)">Active Now</small><strong style="display:block;font-size:1.5rem">${S.active.length}</strong></div>
+          <button class="btn primary" onclick="S.selfie=null; navTo('site')" style="padding:8px">Start Site</button>
+        </div>
+        <div id="list">
+          ${S.active.length ? S.active.map(s => `
+            <div class="site-item">
+              <div><strong>${esc(s.clientName)}</strong><small>${esc(s.siteLocation)}</small></div>
+              <button class="btn secondary" style="width:auto;padding:6px 12px;font-size:0.75rem" onclick="prepLogout('${s.sessionId}')">End Session</button>
+            </div>
+          `).join('') : '<p class="sub" style="text-align:center;margin-top:2rem">No active sites.</p>'}
+        </div>
+      `;
+    }
+
+    function prepLogout(id) { S.selected = S.active.find(x => x.sessionId === id); S.selfie = null; navTo('logout'); }
+
+    function showSite() {
+      $('screen').innerHTML = `
+        <h1>Start Session</h1>
+        <p class="sub">Enter details and capture your login photo.</p>
+        <div class="field"><label>Project Name</label><input id="cn" placeholder="e.g. Skyline Build"></div>
+        <div class="field"><label>Location</label><input id="cl" placeholder="e.g. Edappally"></div>
+        <div class="field"><label>Workers</label><input id="wk" type="number" placeholder="0"></div>
+        <div class="camera" id="cam"><p>Camera inactive</p></div>
+        <div class="row" style="margin-bottom:16px">
+          <button class="btn secondary" onclick="initCam()">Open Camera</button>
+          <button id="cap" class="btn primary" disabled onclick="captureCam()">Capture</button>
+        </div>
+        <button id="sl" class="btn primary" onclick="submitSite()">Submit Session</button>
+        <div id="err"></div>
+      `;
+    }
+
+    function showLogout() {
+      $('screen').innerHTML = `
+        <h1>End Session</h1>
+        <p class="sub">Confirming departure for <strong>${esc(S.selected?.clientName)}</strong>.</p>
+        <div class="camera" id="cam"><p>Camera inactive</p></div>
+        <div class="row" style="margin-bottom:16px">
+          <button class="btn secondary" onclick="initCam()">Open Camera</button>
+          <button id="cap" class="btn primary" disabled onclick="captureCam()">Capture</button>
+        </div>
+        <button id="sl" class="btn primary" disabled onclick="submitLogout()">End Session</button>
+        <button class="btn secondary" style="margin-top:12px" onclick="navTo('home')">Cancel</button>
+        <div id="err"></div>
+      `;
+    }
+
+    async function initCam() {
+      try {
+        locate(); // Run GPS concurrently
+        S.stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}, audio:false});
+        const v = document.createElement('video'); v.autoplay = true; v.playsInline = true; v.srcObject = S.stream;
+        $('cam').replaceChildren(v); $('cap').disabled = false;
+      } catch (e) { $('err').innerHTML = `<div class="notice bad">Camera access denied.</div>`; }
+    }
+
+    function captureCam() {
+      const v = $('cam').querySelector('video'), c = document.createElement('canvas');
+      c.width = v.videoWidth; c.height = v.videoHeight;
+      c.getContext('2d').drawImage(v, 0, 0);
+      S.selfie = c.toDataURL('image/jpeg', 0.6); // Lowered quality for faster upload
+      S.stream.getTracks().forEach(t => t.stop()); S.stream = null;
+      $('cam').innerHTML = `<img src="${S.selfie}">`; 
+      $('cap').disabled = true;
+      if($('sl')) $('sl').disabled = false;
+    }
+
+    async function locate() {
+      return new Promise((res, rej) => navigator.geolocation.getCurrentPosition(
+        p => {
+          S.gps = { lat: p.coords.latitude, lng: p.coords.longitude, label: `${p.coords.latitude.toFixed(4)}, ${p.coords.longitude.toFixed(4)}` };
+          updateGPS(); res(S.gps);
+        },
+        () => rej(), {enableHighAccuracy: true, timeout: 5000}
+      ));
+    }
+
+    async function submitSite() {
+      const btn = $('sl'); btn.disabled = true; btn.textContent = 'Uploading...';
+      try {
+        await locate();
+        if(!S.selfie) throw new Error('Capture photo first.');
+        const d = await req('site_login', { token: S.token, clientName: $('cn').value, siteLocation: $('cl').value, customerId: `${$('cn').value}|${$('cl').value}`, workers: $('wk').value, loginSelfieDataUrl: S.selfie, locationName: S.gps.label, latitude: S.gps.lat, longitude: S.gps.lng });
+        S.active = d.active || []; navTo('home');
+      } catch (e) { $('err').innerHTML = `<div class="notice bad">${esc(e.message)}</div>`; btn.disabled = false; btn.textContent = 'Submit Session'; }
+    }
+
+    async function submitLogout() {
+      const btn = $('sl'); btn.disabled = true; btn.textContent = 'Uploading...';
+      try {
+        await locate();
+        const d = await req('site_logout', { token: S.token, sessionId: S.selected.sessionId, logoutSelfieDataUrl: S.selfie, locationName: S.gps.label, latitude: S.gps.lat, longitude: S.gps.lng });
+        S.active = d.active || []; navTo('home');
+      } catch (e) { $('err').innerHTML = `<div class="notice bad">${esc(e.message)}</div>`; btn.disabled = false; btn.textContent = 'End Session'; }
+    }
+
+    function showAdmin() {
+      $('screen').innerHTML = `<h1>Admin Panel</h1><p class="sub">Dashboard features accessible via Google Sheets.</p><button class="btn secondary" onclick="navTo('home')">Back to Home</button>`;
+    }
+
+    setTimeout(render, 100);
+  </script>
+</body>
+</html>
