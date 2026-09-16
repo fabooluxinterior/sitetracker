@@ -3,8 +3,8 @@
  *  Run setup() once after updating this script, then deploy as a Web app.
  */
 const CONFIG = {
-  visitsSheet: 'Visits',
-  customersSheet: 'Customers',
+  visitsSheet: 'VisitsV3',
+  customersSheet: 'CustomersV3',
   credentialsSheet: 'Credentials',
   driveFolder: 'SiteTrack Uploads',
   timezone: Session.getScriptTimeZone() || 'Asia/Kolkata',
@@ -37,7 +37,7 @@ function doGet(e) {
   try {
     const p = (e && e.parameter) || {};
     const action = p.action || 'health';
-    if (action === 'health') return json_({ok:true, service:'SiteTrack', version:'3'});
+    if (action === 'health') return json_({ok:true, service:'SiteTrack', version:'4'});
     if (action === 'active') return json_({ok:true, active: activeSessions_(requireAuth_(p.token))});
     if (action === 'customers') return json_({ok:true, customers: recentCustomers_(requireAuth_(p.token))});
     if (action === 'search') return json_({ok:true, customers: searchCustomers_(requireAuth_(p.token), p.q || '')});
