@@ -44,3 +44,6 @@ Serve the files over HTTPS or localhost so browser camera and GPS permissions wo
 ```bash
 python -m http.server 8080
 ```
+
+
+Storage tabs: `VisitsV3`, `CustomersV3`, and `Credentials`. Legacy `Visits` and `Customers` tabs are preserved.
